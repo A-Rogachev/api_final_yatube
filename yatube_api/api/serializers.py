@@ -39,6 +39,7 @@ class GroupSerializer(serializers.ModelSerializer):
         model = Group
         fields = '__all__'
 
+
 class FollowSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Follow (подписка на автора)."""
 
