@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from rest_framework import filters, viewsets
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from .permissions import IsAuthorOrReadOnly
 from .serializers import *
@@ -13,6 +13,7 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = (
+        IsAuthenticatedOrReadOnly,
         IsAuthorOrReadOnly,
     )
     pagination_class = LimitOffsetPagination
@@ -26,6 +27,9 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
+    permission_classes = (
+        IsAuthorOrReadOnly,
+    )
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -33,7 +37,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     serializer_class = CommentSerializer
     permission_classes = (
-        IsAuthenticated,
+        IsAuthenticatedOrReadOnly,
         IsAuthorOrReadOnly,
     )
 
@@ -55,5 +59,6 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class FollowViewSet(viewsets.ModelViewSet):
     """Вьюсет для работы с моделью Follow (подписка)."""
+
     queryset = Follow.objects.all()
     serializer_class = FollowSerializer
