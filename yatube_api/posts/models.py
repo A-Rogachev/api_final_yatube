@@ -4,6 +4,33 @@ from django.db import models
 User = get_user_model()
 
 
+class Group(models.Model):
+    """Модель сообщества."""
+
+    title = models.CharField(
+        max_length=200,
+        verbose_name='Название группы',
+        help_text='Укажите название группы',
+    )
+    slug = models.SlugField(
+        verbose_name='Slug для url-адреса',
+        help_text='Укажите slug для url-адреса группы',
+        unique=True,
+    )
+    description = models.TextField(
+        verbose_name='Описание группы',
+        help_text='Добавьте описание группы',
+    )
+
+    class Meta:
+        verbose_name = 'Группа'
+        verbose_name_plural = 'Группы'
+
+    def __str__(self) -> str:
+        """Возвращает название группы"""
+        return self.title
+
+
 class Post(models.Model):
     """Модель сообщения (публикация блога)."""
 
@@ -13,6 +40,11 @@ class Post(models.Model):
         User, on_delete=models.CASCADE, related_name='posts')
     image = models.ImageField(
         upload_to='posts/', null=True, blank=True)
+    group = models.ForeignKey(
+        Group, on_delete=models.SET_NULL,
+        related_name='posts', blank=True, null=True
+    )
+
 
     def __str__(self):
         return self.text
@@ -64,30 +96,3 @@ class Follow(models.Model):
     def __str__(self) -> str:
         """Строковое представление подписки"""
         return f'{self.user} подписан на {self.following}'
-
-
-class Group(models.Model):
-    """Модель сообщества."""
-
-    title = models.CharField(
-        max_length=200,
-        verbose_name='Название группы',
-        help_text='Укажите название группы',
-    )
-    slug = models.SlugField(
-        verbose_name='Slug для url-адреса',
-        help_text='Укажите slug для url-адреса группы',
-        unique=True,
-    )
-    description = models.TextField(
-        verbose_name='Описание группы',
-        help_text='Добавьте описание группы',
-    )
-
-    class Meta:
-        verbose_name = 'Группа'
-        verbose_name_plural = 'Группы'
-
-    def __str__(self) -> str:
-        """Возвращает название группы"""
-        return self.title
