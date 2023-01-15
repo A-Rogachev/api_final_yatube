@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, viewsets
+from rest_framework import filters, mixins, viewsets
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (CommentSerializer, FollowSerializer, GroupSerializer,
@@ -9,12 +9,19 @@ from .serializers import (CommentSerializer, FollowSerializer, GroupSerializer,
 from posts.models import Group, Post
 
 
+class CreateListViewset(mixins.CreateModelMixin, mixins.ListModelMixin,
+                        viewsets.GenericViewSet):
+    """Вьюсет позволяющий делать GET и POST запросы."""
+
+    pass
+
+
 class PostViewSet(viewsets.ModelViewSet):
     """Вьюсет для работы с моделью Post (публикация)."""
+
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = (
-        IsAuthenticatedOrReadOnly,
         IsAuthorOrReadOnly,
     )
     pagination_class = LimitOffsetPagination
@@ -28,9 +35,6 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = (
-        IsAuthorOrReadOnly,
-    )
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -38,32 +42,32 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     serializer_class = CommentSerializer
     permission_classes = (
-        IsAuthenticatedOrReadOnly,
         IsAuthorOrReadOnly,
     )
 
     @property
     def requested_post(self):
         return get_object_or_404(
-            Post, pk=self.kwargs.get('post_id')
+            Post, pk=self.kwargs.get('post_id'),
         )
 
     def perform_create(self, serializer):
         serializer.save(
             post=self.requested_post,
-            author=self.request.user
+            author=self.request.user,
         )
 
     def get_queryset(self):
         return self.requested_post.comments.all()
 
 
-class FollowViewSet(viewsets.ModelViewSet):
+class FollowViewSet(CreateListViewset):
     """Вьюсет для работы с моделью Follow (подписка)."""
 
     serializer_class = FollowSerializer
     filter_backends = (filters.SearchFilter, )
-    search_fields = ('following__username', )
+    search_fields = ('=following__username', )
+    permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
         return self.request.user.follower.all()
