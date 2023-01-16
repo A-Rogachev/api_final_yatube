@@ -63,6 +63,7 @@ class FollowSerializer(serializers.ModelSerializer):
             fields=['user', 'following'],
         ),
         NotFollowSelfValidator(
+            model_fields=Follow._meta.fields,
             message='Нельзя подписаться на самого себя!',
         )
     ]

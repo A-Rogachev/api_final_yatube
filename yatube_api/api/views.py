@@ -10,9 +10,6 @@ from .serializers import (CommentSerializer, FollowSerializer, GroupSerializer,
 from posts.models import Group, Post
 
 
-
-
-
 class PostViewSet(viewsets.ModelViewSet):
     """Вьюсет для работы с моделью Post (публикация)."""
 
