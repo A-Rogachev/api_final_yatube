@@ -19,7 +19,6 @@ class NotFollowSelfValidator:
             User, username=serializer.initial_data.get('following')
         )
         if user == following:
-            print(self)
             raise serializers.ValidationError(self.message)
 
     def __repr__(self):
