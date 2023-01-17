@@ -13,7 +13,7 @@ class NotFollowSelfValidator:
 
     def __call__(self, attrs, serializer):
         different_field_values = {
-            attrs[key] for key in attrs.keys()
+            value for value in attrs.values()
         }
         if len(attrs) != len(different_field_values):
             raise serializers.ValidationError(self.message)
